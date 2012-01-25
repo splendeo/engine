@@ -8,6 +8,11 @@ def create_content_page(page_slug, page_contents, template = nil)
   page
 end
 
+def create_content_protected_page(page_slug, page_contents, role, template = nil)
+  page = create_content_page(page_slug, page_contents, template)
+  page.required_role = role
+  page
+end
 # creates a page
 Given /^a simple page named "([^"]*)" with the body:$/ do |page_slug, page_contents|
   @page = create_content_page(page_slug, page_contents)
@@ -17,6 +22,9 @@ Given /^a page named "([^"]*)" with the template:$/ do |page_slug, template|
   @page = create_content_page(page_slug, '', template)
 end
 
+Given /^a protected page named "([^"]*)" visible for "([^"]*)"$/ do |page_slug, role|
+  @page = create_content_protected_page(page_slug, role, "secret")
+end
 # update a page
 When /^I update the "([^"]*)" page with the template:$/ do |page_slug, template|
   page = @site.pages.where(:slug => page_slug).first

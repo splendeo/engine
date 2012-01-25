@@ -101,7 +101,8 @@ module Locomotive
 
         def matches?(target)
           @target = target
-          @member.ability.can? @permission, @target
+          ability = @member.respond_to?(:ability) ? @member.ability : Ability.new()
+          ability.can? @permission, @target
         end
 
         def failure_message_for_should

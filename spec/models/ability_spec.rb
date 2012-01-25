@@ -9,6 +9,8 @@ describe Ability do
     @admin  = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => FactoryGirl.build(:site))
     @designer  = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => @site, :role => %(designer))
     @author = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => @site, :role => %(author))
+    @logged_in = FactoryGirl.create(:logged_in, :site => @site)
+    @guest = FactoryGirl.create(:guest, :site => @site)
   end
 
   context 'pages' do
@@ -29,6 +31,61 @@ describe Ability do
       end
     end
 
+    context 'authorization' do
+      it 'should allow reading of pages from everyone' do
+        should allow_permission_from :read, @admin
+        should allow_permission_from :read, @designer
+        should allow_permission_from :read, @author
+        should allow_permission_from :read, @logged_in
+        should allow_permission_from :read, @guest
+      end
+
+
+      it 'logged_in-protected pages forbid reading of pages from everyone but guests' do
+        subject.required_role = 'logged_in'
+        #should allow_permission_from :read, @admin
+        #should allow_permission_from :read, @designer
+        #should allow_permission_from :read, @author
+        #should allow_permission_from :read, @logged_in
+        should_not allow_permission_from :read, @guest
+      end
+   
+      context 'author pages' do
+        before { subject.required_role = 'author' }
+
+        it 'should allow reading of pages from authors and up only' do
+          should allow_permission_from :read, @admin
+          should allow_permission_from :read, @designer
+          should allow_permission_from :read, @author
+          should_not allow_permission_from :read, @logged_in
+          should_not allow_permission_from :read, @guest
+        end
+      end
+
+      context 'designer pages' do
+        before { subject.required_role = 'designer' }
+
+        it 'should allow reading of pages from designer and admin only' do
+          should allow_permission_from :read, @admin
+          should allow_permission_from :read, @designer
+          should_not allow_permission_from :read, @author
+          should_not allow_permission_from :read, @logged_in
+          should_not allow_permission_from :read, @guest
+        end
+      end
+
+      context 'admin-protected pages' do
+        before { subject.required_role = 'admin' }
+
+        it 'should allow reading of pages from designer and admin only' do
+          should allow_permission_from :read, @admin
+          should_not allow_permission_from :read, @designer
+          should_not allow_permission_from :read, @author
+          should_not allow_permission_from :read, @logged_in
+          should_not allow_permission_from :read, @guest
+        end
+      end
+    end
   end
 
   context 'content instance' do

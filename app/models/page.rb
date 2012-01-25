@@ -19,6 +19,7 @@ class Page
   field :raw_template
   field :published, :type => Boolean, :default => false
   field :cache_strategy, :default => 'none'
+  field :required_role
 
   ## associations ##
   referenced_in :site
@@ -38,6 +39,7 @@ class Page
   validates_presence_of     :site, :title, :slug
   validates_uniqueness_of   :slug, :scope => [:site_id, :parent_id]
   validates_exclusion_of    :slug, :in => Locomotive.config.reserved_slugs, :if => Proc.new { |p| p.depth == 0 }
+  validates_inclusion_of    :required_role, :in => Ability::ROLES, :allow_nil => true
 
   ## named scopes ##
   scope :latest_updated, :order_by => [[:updated_at, :desc]], :limit => Locomotive.config.latest_items_nb
