@@ -4,13 +4,18 @@ describe Ability do
 
   before :each do
     @site = FactoryGirl.create(:site)
-    @account = FactoryGirl.create(:account)
 
-    @admin  = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => FactoryGirl.build(:site))
-    @designer  = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => @site, :role => %(designer))
-    @author = FactoryGirl.create(:membership, :account => FactoryGirl.build(:account), :site => @site, :role => %(author))
-    @logged_in = FactoryGirl.create(:logged_in, :site => @site)
-    @guest = FactoryGirl.create(:guest, :site => @site)
+    @admin_membership     = FactoryGirl.create(:admin,      :site => @site)
+    @designer_membership  = FactoryGirl.create(:designer,   :site => @site)
+    @author_membership    = FactoryGirl.create(:author,     :site => @site)
+    @logged_in_membership = FactoryGirl.create(:logged_in,  :site => @site)
+
+    @admin     = @admin_membership.account
+    @designer  = @designer_membership.account
+    @author    = @author_membership.account
+    @logged_in = @logged_in_membership.account
+
+    @guest = nil # FactoryGirl.create(    :guest,      :site => @site)
   end
 
   context 'pages' do
@@ -19,46 +24,46 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of pages from (admin, designer, author)' do
-        should     allow_permission_from :manage, @admin
-        should     allow_permission_from :manage, @designer
-        should_not allow_permission_from :manage, @author
+        should     allow_permission_from :manage, @admin, @site
+        should     allow_permission_from :manage, @designer, @site
+        should_not allow_permission_from :manage, @author, @site
       end
     end
 
     context 'touching' do
       it 'should allow touching of pages from (author)' do
-        should allow_permission_from :touch, @author
+        should allow_permission_from :touch, @author, @site
       end
     end
 
     context 'authorization' do
       it 'should allow reading of pages from everyone' do
-        should allow_permission_from :read, @admin
-        should allow_permission_from :read, @designer
-        should allow_permission_from :read, @author
-        should allow_permission_from :read, @logged_in
-        should allow_permission_from :read, @guest
+        should allow_permission_from :read, @admin, @site
+        should allow_permission_from :read, @designer, @site
+        should allow_permission_from :read, @author, @site
+        should allow_permission_from :read, @logged_in, @site
+        should allow_permission_from :read, @guest, @site
       end
 
 
       it 'logged_in-protected pages forbid reading of pages from everyone but guests' do
         subject.required_role = 'logged_in'
-        #should allow_permission_from :read, @admin
-        #should allow_permission_from :read, @designer
-        #should allow_permission_from :read, @author
-        #should allow_permission_from :read, @logged_in
-        should_not allow_permission_from :read, @guest
+        should allow_permission_from :read, @admin, @site
+        should allow_permission_from :read, @designer, @site
+        should allow_permission_from :read, @author, @site
+        should allow_permission_from :read, @logged_in, @site
+        should_not allow_permission_from :read, @guest, @site
       end
-   
+
       context 'author pages' do
         before { subject.required_role = 'author' }
 
         it 'should allow reading of pages from authors and up only' do
-          should allow_permission_from :read, @admin
-          should allow_permission_from :read, @designer
-          should allow_permission_from :read, @author
-          should_not allow_permission_from :read, @logged_in
-          should_not allow_permission_from :read, @guest
+          should allow_permission_from :read, @admin, @site
+          should allow_permission_from :read, @designer, @site
+          should allow_permission_from :read, @author, @site
+          should_not allow_permission_from :read, @logged_in, @site
+          should_not allow_permission_from :read, @guest, @site
         end
       end
 
@@ -66,23 +71,11 @@ describe Ability do
         before { subject.required_role = 'designer' }
 
         it 'should allow reading of pages from designer and admin only' do
-          should allow_permission_from :read, @admin
-          should allow_permission_from :read, @designer
-          should_not allow_permission_from :read, @author
-          should_not allow_permission_from :read, @logged_in
-          should_not allow_permission_from :read, @guest
-        end
-      end
-
-      context 'admin-protected pages' do
-        before { subject.required_role = 'admin' }
-
-        it 'should allow reading of pages from designer and admin only' do
-          should allow_permission_from :read, @admin
-          should_not allow_permission_from :read, @designer
-          should_not allow_permission_from :read, @author
-          should_not allow_permission_from :read, @logged_in
-          should_not allow_permission_from :read, @guest
+          should allow_permission_from :read, @admin, @site
+          should allow_permission_from :read, @designer, @site
+          should_not allow_permission_from :read, @author, @site
+          should_not allow_permission_from :read, @logged_in, @site
+          should_not allow_permission_from :read, @guest, @site
         end
       end
     end
@@ -94,9 +87,9 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of pages from (admin, designer, author)' do
-        should allow_permission_from :manage, @admin
-        should allow_permission_from :manage, @designer
-        should allow_permission_from :manage, @author
+        should allow_permission_from :manage, @admin, @site
+        should allow_permission_from :manage, @designer, @site
+        should allow_permission_from :manage, @author, @site
       end
     end
 
@@ -108,9 +101,9 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of pages from (admin, designer)' do
-        should     allow_permission_from :manage, @admin
-        should     allow_permission_from :manage, @designer
-        should_not allow_permission_from :manage, @author
+        should     allow_permission_from :manage, @admin, @site
+        should     allow_permission_from :manage, @designer, @site
+        should_not allow_permission_from :manage, @author, @site
       end
     end
 
@@ -128,15 +121,15 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of pages from (admin, designer)' do
-        should     allow_permission_from :manage, @admin
-        should     allow_permission_from :manage, @designer
-        should_not allow_permission_from :manage, @author
+        should     allow_permission_from :manage, @admin, @site
+        should     allow_permission_from :manage, @designer, @site
+        should_not allow_permission_from :manage, @author, @site
       end
     end
 
     context 'touching' do
       it 'should allow touching of pages from (author)' do
-        should allow_permission_from :touch, @author
+        should allow_permission_from :touch, @author, @site
       end
     end
 
@@ -148,23 +141,23 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of pages from (admin)' do
-        should     allow_permission_from :manage, @admin
-        should_not allow_permission_from :manage, @designer
-        should_not allow_permission_from :manage, @author
+        should     allow_permission_from :manage, @admin, @site
+        should_not allow_permission_from :manage, @designer, @site
+        should_not allow_permission_from :manage, @author, @site
       end
     end
 
     context 'importing' do
       it 'should allow importing of sites from (designer)' do
-        should     allow_permission_from :import, @designer
-        should_not allow_permission_from :import, @author
+        should     allow_permission_from :import, @designer, @site
+        should_not allow_permission_from :import, @author, @site
       end
     end
 
     context 'pointing' do
       it 'should allow importing of sites from (designer)' do
-        should     allow_permission_from :point, @designer
-        should_not allow_permission_from :point, @author
+        should     allow_permission_from :point, @designer, @site
+        should_not allow_permission_from :point, @author, @site
       end
     end
 
@@ -176,17 +169,17 @@ describe Ability do
 
     context 'management' do
       it 'should allow management of memberships from (admin, designer)' do
-        should     allow_permission_from :manage, @admin
-        should     allow_permission_from :manage, @designer
-        should_not allow_permission_from :manage, @author
+        should     allow_permission_from :manage, @admin, @site
+        should     allow_permission_from :manage, @designer, @site
+        should_not allow_permission_from :manage, @author, @site
       end
     end
 
     context 'granting admin' do
       it 'should allow only admins to grant admin role' do
-        should     allow_permission_from :grant_admin, @admin
-        should_not allow_permission_from :grant_admin, @designer
-        should_not allow_permission_from :grant_admin, @author
+        should     allow_permission_from :grant_admin, @admin, @site
+        should_not allow_permission_from :grant_admin, @designer, @site
+        should_not allow_permission_from :grant_admin, @author, @site
       end
 
     end

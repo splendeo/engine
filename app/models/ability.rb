@@ -7,21 +7,24 @@ class Ability
     @account, @site = account, site
 
     alias_action :index, :show, :edit, :update, :to => :touch
+    alias_action :index, :show, :to => :read
 
     setup_default_permissions!
 
-    @membership = @site.memberships.where(:account_id => @account.id).first
+    if @account && @site
+      @membership = @site.memberships.where(:account_id => @account.id).first
 
-    if @membership
-      if @membership.admin?
-        setup_admin_permissions!
-      else
+      if @membership
+        if @membership.admin?
+          setup_admin_permissions!
+        else
 
-        setup_logged_in_permissions! if @membership.logged_in?
+          setup_logged_in_permissions! if @membership.logged_in?
 
-        setup_designer_permissions! if @membership.designer?
+          setup_designer_permissions! if @membership.designer?
 
-        setup_author_permissions!  if @membership.author?
+          setup_author_permissions!  if @membership.author?
+        end
       end
     end
   end
@@ -47,6 +50,10 @@ class Ability
 
     can :touch, Site do |site|
       site == @site
+    end
+
+    can :read, Page do |page|
+      %w{ author logged_in }.include? page.required_role
     end
   end
 

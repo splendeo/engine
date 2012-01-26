@@ -104,13 +104,6 @@ FactoryGirl.define do
       role 'logged_in'
       account { Factory('logged in user', :locale => 'en') }
     end
-
-    factory :guest do
-      role 'guest'
-      account nil
-    end
-      
-
   end
 
   ## Pages ##
