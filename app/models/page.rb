@@ -1,5 +1,8 @@
 class Page
 
+
+  VALID_REQUIRED_ROLES = Ability::ROLES.select{ |r| r != 'admin' }
+
   include Locomotive::Mongoid::Document
 
   ## Extensions ##
@@ -39,7 +42,7 @@ class Page
   validates_presence_of     :site, :title, :slug
   validates_uniqueness_of   :slug, :scope => [:site_id, :parent_id]
   validates_exclusion_of    :slug, :in => Locomotive.config.reserved_slugs, :if => Proc.new { |p| p.depth == 0 }
-  validates_inclusion_of    :required_role, :in => Ability::ROLES, :allow_nil => true
+  validates_inclusion_of    :required_role, :in => VALID_REQUIRED_ROLES, :allow_nil => true
 
   ## named scopes ##
   scope :latest_updated, :order_by => [[:updated_at, :desc]], :limit => Locomotive.config.latest_items_nb

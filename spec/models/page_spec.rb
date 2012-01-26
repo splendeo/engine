@@ -48,14 +48,22 @@ describe Page do
 
   it 'should validate inclusion of required_role within the list of roles' do
     site = FactoryGirl.create(:site)
-    root = FactoryGirl.create(:page, :slug => 'index', :site => site, :required_role => 'admin')
+    root = FactoryGirl.create(:page, :slug => 'index', :site => site)
 
-    %w{ admin designer author logged_in }.each do |role|
+    %w{ designer author logged_in }.each do |role|
      page = FactoryGirl.build(:page, :slug => 'child', :parent => root, :site => site, :required_role => role)
      page.should be_valid
     end
 
     erroneous = FactoryGirl.build(:page, :slug => 'erroneous', :parent => root, :site => site, :required_role => 'foo')
+    erroneous.should_not be_valid
+    erroneous.errors[:required_role].should == ["is not included in the list"]
+  end
+
+  it 'should not accept "admin" as the required_role' do
+    site = FactoryGirl.create(:site)
+    root = FactoryGirl.create(:page, :slug => 'index', :site => site)
+    erroneous = FactoryGirl.build(:page, :slug => 'erroneous', :parent => root, :site => site, :required_role => 'admin')
     erroneous.should_not be_valid
     erroneous.errors[:required_role].should == ["is not included in the list"]
   end
