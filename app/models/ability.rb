@@ -1,7 +1,9 @@
 class Ability
   include CanCan::Ability
 
-  ROLES = %w(admin designer author logged_in)
+  DEFAULT_ROLES = %w(admin designer author)
+  EXTRA_ROLES = %w(logged_in)
+  ROLES = DEFAULT_ROLES + EXTRA_ROLES
 
   def initialize(account, site)
     @account, @site = account, site
@@ -18,9 +20,6 @@ class Ability
         if @membership.admin?
           setup_admin_permissions!
         else
-
-          setup_logged_in_permissions! if @membership.logged_in?
-
           setup_designer_permissions! if @membership.designer?
 
           setup_author_permissions!  if @membership.author?
@@ -32,28 +31,19 @@ class Ability
   def setup_default_permissions!
     cannot :manage, :all
     can :read, Page do |page|
-      page.required_role.nil?
-    end
-  end
-
-  def setup_logged_in_permissions!
-    can :read, Page do |page|
-      page.required_role == 'logged_in'
+      page.required_role.nil? || (@membership && page.required_role == @membership.role)
     end
   end
 
   def setup_author_permissions!
     can :touch, [Page, ThemeAsset]
     can :sort, Page
+    can :read, Page
 
     can :manage, [ContentInstance, Asset]
 
     can :touch, Site do |site|
       site == @site
-    end
-
-    can :read, Page do |page|
-      %w{ author logged_in }.include? page.required_role
     end
   end
 

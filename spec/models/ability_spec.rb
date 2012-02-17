@@ -15,7 +15,7 @@ describe Ability do
     @author    = @author_membership.account
     @logged_in = @logged_in_membership.account
 
-    @guest = nil # FactoryGirl.create(    :guest,      :site => @site)
+    @guest = nil
   end
 
   context 'pages' do
@@ -53,30 +53,6 @@ describe Ability do
         should allow_permission_from :read, @author, @site
         should allow_permission_from :read, @logged_in, @site
         should_not allow_permission_from :read, @guest, @site
-      end
-
-      context 'author pages' do
-        before { subject.required_role = 'author' }
-
-        it 'should allow reading of pages from authors and up only' do
-          should allow_permission_from :read, @admin, @site
-          should allow_permission_from :read, @designer, @site
-          should allow_permission_from :read, @author, @site
-          should_not allow_permission_from :read, @logged_in, @site
-          should_not allow_permission_from :read, @guest, @site
-        end
-      end
-
-      context 'designer pages' do
-        before { subject.required_role = 'designer' }
-
-        it 'should allow reading of pages from designer and admin only' do
-          should allow_permission_from :read, @admin, @site
-          should allow_permission_from :read, @designer, @site
-          should_not allow_permission_from :read, @author, @site
-          should_not allow_permission_from :read, @logged_in, @site
-          should_not allow_permission_from :read, @guest, @site
-        end
       end
     end
   end
