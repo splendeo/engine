@@ -39,6 +39,8 @@
     = f.custom_input :redirect, :css => 'toggle', :style => "#{'display: none' if @page.templatized?}" do
       = f.check_box :redirect
 
+    = f.input :required_role, :as => :select, :collection => Page::VALID_REQUIRED_ROLES, :include_blank => true
+
     = f.input :cache_strategy, :as => :select, :collection => options_for_page_cache_strategy, :include_blank => false, :wrapper_html => { :style => "#{'display: none' if @page.redirect?}" }
 
     = f.input :redirect_url, :required => true, :wrapper_html => { :style => "#{'display: none' unless @page.redirect?}" }
