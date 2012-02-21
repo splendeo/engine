@@ -7,7 +7,7 @@ module Locomotive
 
       protected
 
-      def render_locomotive_page(current_user = nil)
+      def render_locomotive_page()
         if request.fullpath =~ /^\/admin\//
           render :template => '/admin/errors/404', :layout => '/admin/layouts/box', :status => :not_found
         else
@@ -15,10 +15,11 @@ module Locomotive
 
           render_no_page_error and return if @page.nil?
 
-          redirect_to new_admin_session_url and return unless Ability.new(@account, @site).can?(:read, @page)
+          unless Ability.new(current_admin, current_site).can? :browse, @page
+            redirect_to new_admin_session_url and return
+          end
 
           redirect_to(@page.redirect_url) and return if @page.redirect?
-
 
           output = @page.render(locomotive_context)
 
