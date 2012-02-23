@@ -15,9 +15,9 @@ module Locomotive
 
           render_no_page_error and return if @page.nil?
 
-          unless Ability.new(current_admin, current_site).can? :browse, @page
-            redirect_to new_admin_session_url and return
-          end
+          # unless Ability.new(current_admin, current_site).can? :browse, @page
+          #   redirect_to new_admin_session_url and return
+          # end
 
           redirect_to(@page.redirect_url) and return if @page.redirect?
 
