@@ -48,7 +48,6 @@ describe Ability do
         should allow_permission_from :browse, @guest, @site
       end
 
-
       it 'should be possible for everyone but guests and employees on client-protected pages' do
         subject.required_role = 'client'
         should allow_permission_from :browse, @admin, @site
