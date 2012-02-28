@@ -5,15 +5,17 @@ describe Ability do
   before :each do
     @site = FactoryGirl.create(:site)
 
-    @admin_membership     = FactoryGirl.create(:admin,      :site => @site)
-    @designer_membership  = FactoryGirl.create(:designer,   :site => @site)
-    @author_membership    = FactoryGirl.create(:author,     :site => @site)
-    @logged_in_membership = FactoryGirl.create(:logged_in,  :site => @site)
+    @admin_membership     = FactoryGirl.create(:admin,    :site => @site)
+    @designer_membership  = FactoryGirl.create(:designer, :site => @site)
+    @author_membership    = FactoryGirl.create(:author,   :site => @site)
+    @client_membership    = FactoryGirl.create(:client,   :site => @site)
+    @employee_membership  = FactoryGirl.create(:employee, :site => @site)
 
     @admin     = @admin_membership.account
     @designer  = @designer_membership.account
     @author    = @author_membership.account
-    @logged_in = @logged_in_membership.account
+    @client    = @client_membership.account
+    @employee  = @employee_membership.account
 
     @guest = nil
   end
@@ -36,23 +38,35 @@ describe Ability do
       end
     end
 
-    context 'authorization' do
-      it 'should allow reading of pages from everyone' do
-        should allow_permission_from :read, @admin, @site
-        should allow_permission_from :read, @designer, @site
-        should allow_permission_from :read, @author, @site
-        should allow_permission_from :read, @logged_in, @site
-        should allow_permission_from :read, @guest, @site
+    context 'browsing' do
+      it 'should be possible for everyone on public pages' do
+        should allow_permission_from :browse, @admin, @site
+        should allow_permission_from :browse, @designer, @site
+        should allow_permission_from :browse, @author, @site
+        should allow_permission_from :browse, @client, @site
+        should allow_permission_from :browse, @employee, @site
+        should allow_permission_from :browse, @guest, @site
       end
 
 
-      it 'logged_in-protected pages forbid reading of pages from everyone but guests' do
-        subject.required_role = 'logged_in'
-        should allow_permission_from :read, @admin, @site
-        should allow_permission_from :read, @designer, @site
-        should allow_permission_from :read, @author, @site
-        should allow_permission_from :read, @logged_in, @site
-        should_not allow_permission_from :read, @guest, @site
+      it 'should be possible for everyone but guests and employees on client-protected pages' do
+        subject.required_role = 'client'
+        should allow_permission_from :browse, @admin, @site
+        should allow_permission_from :browse, @designer, @site
+        should allow_permission_from :browse, @author, @site
+        should allow_permission_from :browse, @client, @site
+        should_not allow_permission_from :browse, @employee, @site
+        should_not allow_permission_from :browse, @guest, @site
+      end
+
+      it 'should be possible for everyone but guests and clients on employee-protected pages' do
+        subject.required_role = 'employee'
+        should allow_permission_from :browse, @admin, @site
+        should allow_permission_from :browse, @designer, @site
+        should allow_permission_from :browse, @author, @site
+        should allow_permission_from :browse, @employee, @site
+        should_not allow_permission_from :browse, @client, @site
+        should_not allow_permission_from :browse, @guest, @site
       end
     end
   end

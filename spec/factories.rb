@@ -72,7 +72,13 @@ FactoryGirl.define do
       locale 'it'
     end
 
-    factory "logged in user" do
+    factory "american user" do
+      name "Bill Gates"
+      email "bill@gates.com"
+      locale 'en'
+    end
+
+    factory "spanish user" do
       name "Santiago Segura"
       email "santi@go.es"
       locale 'en'
@@ -100,9 +106,14 @@ FactoryGirl.define do
       account { Factory('brazillian user', :locale => 'en') }
     end
 
-    factory :logged_in do
-      role 'logged_in'
-      account { Factory('logged in user', :locale => 'en') }
+    factory :client do
+      role 'client'
+      account { Factory('american user', :locale => 'en') }
+    end
+
+    factory :employee do
+      role 'employee'
+      account { Factory('spanish user', :locale => 'en') }
     end
   end
 
