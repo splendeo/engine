@@ -31,7 +31,7 @@ class Ability
   def setup_default_permissions!
     cannot :manage, :all
     can :browse, Page do |page|
-      page.required_role.nil? || (@membership && page.required_role == @membership.role)
+      page.required_role.blank? || (@membership && page.required_role == @membership.role)
     end
   end
 

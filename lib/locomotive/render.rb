@@ -15,9 +15,11 @@ module Locomotive
 
           render_no_page_error and return if @page.nil?
 
-          # unless Ability.new(current_admin, current_site).can? :browse, @page
-          #   redirect_to new_admin_session_url and return
-          # end
+          if not logged_in?
+            redirect_to new_admin_session_url and return
+          elsif not can_browse_page?
+            @page = unauthorized_page
+          end
 
           redirect_to(@page.redirect_url) and return if @page.redirect?
 
@@ -25,6 +27,14 @@ module Locomotive
 
           self.prepare_and_set_response(output)
         end
+      end
+
+      def logged_in?
+        current_admin.present?
+      end
+
+      def can_browse_page?
+        Ability.new(current_admin, current_site).can? :browse, @page
       end
 
       def render_no_page_error
@@ -116,12 +126,18 @@ module Locomotive
         current_site.pages.not_found.published.first
       end
 
+      def unauthorized_page
+        current_site.pages.unauthorized.published.first or not_found_page
+      end
+
       def editing_page?
         @editing
       end
 
       def page_status
-        @page.not_found? ? :not_found : :ok
+        return :not_found    if @page.not_found?
+        return :unauthorized if @page.unauthorized?
+        :ok
       end
 
     end

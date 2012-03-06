@@ -48,6 +48,7 @@ class Page
   scope :latest_updated, :order_by => [[:updated_at, :desc]], :limit => Locomotive.config.latest_items_nb
   scope :root, :where => { :slug => 'index', :depth => 0 }
   scope :not_found, :where => { :slug => '404', :depth => 0 }
+  scope :unauthorized, :where => { :slug => '401' }
   scope :published, :where => { :published => true }
   scope :fullpath, lambda { |fullpath| { :where => { :fullpath => fullpath } } }
   scope :minimal_attributes, :only => %w(title slug fullpath position depth published templatized redirect listed parent_id created_at updated_at)
@@ -60,6 +61,10 @@ class Page
 
   def not_found?
     self.slug == '404' && self.depth.to_i == 0
+  end
+
+  def unauthorized?
+    self.slug == '401'
   end
 
   def index_or_not_found?
@@ -97,7 +102,7 @@ class Page
   def do_not_remove_index_and_404_pages
     return if self.site.nil? || self.site.destroyed?
 
-    if self.index? || self.not_found?
+    if self.index? || self.not_found? || self.unauthorized?
       self.errors[:base] << I18n.t('errors.messages.protected_page')
     end
 
