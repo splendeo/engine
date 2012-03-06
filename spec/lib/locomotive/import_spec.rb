@@ -73,7 +73,7 @@ describe Locomotive::Import::Job do
 
     it 'sets the editable text for a page from the site config file' do
       page = @site.pages.where(:title => 'Contact').first
-      page.find_editable_element('content', 'address').content.should == '<p>Our office address: 215 Vine Street, Scranton, PA 18503</p>'
+      page.find_editable_element('content', 'address').content.should match('<p>Our office address: 215 Vine Street, Scranton, PA 18503<br /><img src="/sites/[^/]+/assets/[^/]+/office.jpg" alt="office.jpg" /></p>')
     end
 
     it 'sets the editable file for a page from the site config file' do
@@ -137,4 +137,20 @@ describe Locomotive::Import::Job do
     end
   end
 
+  context 'with a content referencing an asset' do
+    before(:all) do
+      @site = FactoryGirl.create(:site)
+
+      job = Locomotive::Import::Job.new(FixturedTheme.duplicate_and_open('default2.zip'), @site, { :samples => true, :reset => true })
+      job.perform
+
+      job.success nil
+    end
+
+    it 'will fix the url inside content' do
+      content = @site.content_types.where(:slug => 'messages').first.contents.first
+      asset = @site.assets.first
+      content.message.should == "<img src=\"/sites/#{@site.id}/assets/#{asset.id}/#{asset.source_filename}\" />"
+    end
+  end
 end

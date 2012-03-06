@@ -173,7 +173,7 @@ module Locomotive
     protected
 
     def _copy_pages(page)
-      attributes = self.extract_attributes(page, %w{title seo_title meta_description meta_keywords redirect_url content_type published})
+      attributes = self.extract_attributes(page, %w{title seo_title meta_description meta_keywords redirect_url content_type published cache_strategy})
 
       attributes['listed'] = page.listed? # in some cases, page.listed can be nil
 
@@ -277,7 +277,7 @@ module Locomotive
 
       highlighted_field_name = content_type.highlighted_field_name
 
-      content_type.contents.each do |content|
+      content_type.ordered_contents.each do |content|
         hash = {}
 
         content.custom_fields.each do |field|
