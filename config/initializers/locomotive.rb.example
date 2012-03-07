@@ -16,7 +16,11 @@ Locomotive.configure do |config|
   #   # Ex:
   #   multi_sites.reserved_subdomains = %w(www admin email blog webmail mail support help site sites)
   # end
-  config.multi_sites = false
+  config.multi_sites = true
+  config.multi_sites do |multi_sites|
+    multi_sites.domain = 'example.com'
+    multi_sites.reserved_subdomains = %w(www admin email blog webmail mail support help site sites)
+  end
 
   # configure the hosting target for the production environment. Locomotive can be installed in:
   # - your own server
