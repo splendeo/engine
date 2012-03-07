@@ -10,6 +10,8 @@ Locomotive::Application.configure do
   config.action_controller.perform_caching = true
 
   # Specifies the header that your server uses for sending files
+  # The following doesn't work in our servers; site/export returns 0-byte files
+  # (even when mod_xsendfile is enabled and XSendfile is On in the virtualhost)
   # config.action_dispatch.x_sendfile_header = "X-Sendfile"
 
   # For nginx:
