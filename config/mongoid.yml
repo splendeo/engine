@@ -15,7 +15,10 @@ test:
   <<: *defaults
   database: locomotive_test
 
-# set these environment variables on your prod server
+staging:
+  database: locomotive
+  uri: <%= ENV['MONGODB_URL'] %>
+
 production:
   # <<: *defaults
   database: locomotive
