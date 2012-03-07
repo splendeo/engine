@@ -28,6 +28,7 @@ tmp/*
 .rvmrc
 Capfile
 config/deploy.rb
+config/initializers/locomotive.rb
 perf/*.rb
 gem_graph.png
 sites/
