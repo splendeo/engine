@@ -15,10 +15,13 @@ module Locomotive
 
           render_no_page_error and return if @page.nil?
 
-          if not logged_in?
-            redirect_to new_admin_session_url and return
-          elsif not can_browse_page?
-            @page = unauthorized_page
+          unless can_browse_page?
+            if logged_in?
+              @page = unauthorized_page
+            else
+              redirect_to new_admin_session_url
+              return
+            end
           end
 
           redirect_to(@page.redirect_url) and return if @page.redirect?
