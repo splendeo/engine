@@ -8,32 +8,29 @@ class Ability
   def initialize(account, site)
     @account, @site = account, site
 
+    if @account.present? && @site.present?
+      @membership = @site.memberships.where(:account_id => @account.id).first
+    end
+
     alias_action :index, :show, :edit, :update, :to => :touch
     alias_action :index, :show, :to => :read
 
     setup_default_permissions!
 
-    if membership
-      if membership.admin?
+    if @membership
+      if @membership.admin?
         setup_admin_permissions!
       else
-        setup_designer_permissions! if membership.designer?
-        setup_author_permissions!   if membership.author?
+        setup_designer_permissions! if @membership.designer?
+        setup_author_permissions!   if @membership.author?
       end
-    end
-  end
-
-  def membership
-    return @membership if @membership
-    if @account.present? && @site.present?
-      @membership = @site.memberships.where(:account_id => @account.id).first
     end
   end
 
   def setup_default_permissions!
     cannot :manage, :all
     can :browse, Page do |page|
-      page.required_role.blank? || (membership && page.required_role == membership.role)
+      page.required_role.blank? || (@membership && page.required_role == @membership.role)
     end
   end
 
