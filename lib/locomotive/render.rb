@@ -7,20 +7,37 @@ module Locomotive
 
       protected
 
-      def render_locomotive_page
+      def render_locomotive_page()
         if request.fullpath =~ /^\/admin\//
           render :template => '/admin/errors/404', :layout => '/admin/layouts/box', :status => :not_found
         else
           @page = locomotive_page
 
-          redirect_to(@page.redirect_url) and return if @page.present? && @page.redirect?
-
           render_no_page_error and return if @page.nil?
+
+          unless can_browse_page?
+            if logged_in?
+              @page = unauthorized_page
+            else
+              redirect_to new_admin_session_url
+              return
+            end
+          end
+
+          redirect_to(@page.redirect_url) and return if @page.redirect?
 
           output = @page.render(locomotive_context)
 
           self.prepare_and_set_response(output)
         end
+      end
+
+      def logged_in?
+        current_admin.present?
+      end
+
+      def can_browse_page?
+        Ability.new(current_admin, current_site).can? :browse, @page
       end
 
       def render_no_page_error
@@ -112,12 +129,18 @@ module Locomotive
         current_site.pages.not_found.published.first
       end
 
+      def unauthorized_page
+        current_site.pages.unauthorized.published.first or not_found_page
+      end
+
       def editing_page?
         @editing
       end
 
       def page_status
-        @page.not_found? ? :not_found : :ok
+        return :not_found    if @page.not_found?
+        return :unauthorized if @page.unauthorized?
+        :ok
       end
 
     end

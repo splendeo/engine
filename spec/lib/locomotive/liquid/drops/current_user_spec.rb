@@ -29,7 +29,7 @@ describe Locomotive::Liquid::Drops::CurrentUser do
       expect_render('{{ current_user.logged_in? }}', 'false')
     end
     it 'returns true  when there is a user logged in' do
-      @controller.expects(:current_admin).twice.returns(true)
+      @controller.expects(:current_admin).at_least_once.returns(@admin)
       expect_render('{{ current_user.logged_in? }}', 'true')
     end
   end
@@ -39,7 +39,7 @@ describe Locomotive::Liquid::Drops::CurrentUser do
       expect_render('{{ current_user.name }}', '')
     end
     it 'returns the username when the user is logged in' do
-      @controller.expects(:current_admin).twice.returns(@admin)
+      @controller.expects(:current_admin).at_least_once.returns(@admin)
       expect_render('{{ current_user.name }}', 'Admin')
     end
   end
@@ -49,7 +49,7 @@ describe Locomotive::Liquid::Drops::CurrentUser do
       expect_render('{{ current_user.email }}', '')
     end
     it 'returns the username when the user is logged in' do
-      @controller.expects(:current_admin).twice.returns(@admin)
+      @controller.expects(:current_admin).at_least_once.returns(@admin)
       expect_render('{{ current_user.email }}', 'admin@locomotiveapp.org')
     end
   end

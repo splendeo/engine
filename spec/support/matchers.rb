@@ -94,14 +94,15 @@ module Locomotive
       end
 
       class PermissionsMatcher
-        def initialize(permission, member)
+        def initialize(permission, account, site)
           @permission = permission
-          @member     = member
+          @account    = account
+          @site       = site
         end
 
         def matches?(target)
           @target = target
-          @member.ability.can? @permission, @target
+          Ability.new(@account, @site).can? @permission, @target
         end
 
         def failure_message_for_should
@@ -119,8 +120,8 @@ module Locomotive
         end
       end
 
-      def allow_permission_from(permission, member)
-        PermissionsMatcher.new(permission, member)
+      def allow_permission_from(permission, account, site)
+        PermissionsMatcher.new(permission, account, site)
       end
     end
   end

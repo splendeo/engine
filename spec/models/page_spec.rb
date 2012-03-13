@@ -46,6 +46,32 @@ describe Page do
     page.valid?.should be_true
   end
 
+  describe "When validating required_role" do
+    let(:site) { FactoryGirl.create(:site) }
+    let(:root) { FactoryGirl.create(:page, :slug => 'index', :site => site) }
+
+    it 'should validate inclusion of required_role within the list of extra roles' do
+      Ability::EXTRA_ROLES.each do |role|
+        page = FactoryGirl.build(:page, :slug => 'child', :parent => root, :site => site, :required_role => role)
+        page.should be_valid
+      end
+
+    end
+
+    it 'should not accept any default role as the required_role' do
+      Ability::DEFAULT_ROLES.each do |role|
+        page = FactoryGirl.build(:page, :slug => 'child', :parent => root, :site => site, :required_role => role)
+        page.should_not be_valid
+      end
+    end
+
+    it 'should not accept bogus roles as the required_role' do
+      erroneous = FactoryGirl.build(:page, :slug => 'erroneous', :parent => root, :site => site, :required_role => 'bogus')
+      erroneous.should_not be_valid
+      erroneous.errors[:required_role].should == ["is not included in the list"]
+    end
+  end
+
   %w{admin stylesheets images javascripts}.each do |slug|
     it "should consider '#{slug}' as invalid" do
       page = FactoryGirl.build(:page, :slug => slug)
@@ -53,6 +79,7 @@ describe Page do
       page.errors[:slug].should == ["is reserved"]
     end
   end
+  
 
   # Named scopes ##
 

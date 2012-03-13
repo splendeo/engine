@@ -1,5 +1,8 @@
 class Page
 
+
+  VALID_REQUIRED_ROLES = Ability::EXTRA_ROLES
+
   include Locomotive::Mongoid::Document
 
   ## Extensions ##
@@ -19,6 +22,7 @@ class Page
   field :raw_template
   field :published, :type => Boolean, :default => false
   field :cache_strategy, :default => 'none'
+  field :required_role
 
   ## associations ##
   referenced_in :site
@@ -38,11 +42,13 @@ class Page
   validates_presence_of     :site, :title, :slug
   validates_uniqueness_of   :slug, :scope => [:site_id, :parent_id]
   validates_exclusion_of    :slug, :in => Locomotive.config.reserved_slugs, :if => Proc.new { |p| p.depth == 0 }
+  validates_inclusion_of    :required_role, :in => VALID_REQUIRED_ROLES, :allow_nil => true, :allow_blank => true
 
   ## named scopes ##
   scope :latest_updated, :order_by => [[:updated_at, :desc]], :limit => Locomotive.config.latest_items_nb
   scope :root, :where => { :slug => 'index', :depth => 0 }
   scope :not_found, :where => { :slug => '404', :depth => 0 }
+  scope :unauthorized, :where => { :slug => '401' }
   scope :published, :where => { :published => true }
   scope :fullpath, lambda { |fullpath| { :where => { :fullpath => fullpath } } }
   scope :minimal_attributes, :only => %w(title slug fullpath position depth published templatized redirect listed parent_id created_at updated_at)
@@ -55,6 +61,10 @@ class Page
 
   def not_found?
     self.slug == '404' && self.depth.to_i == 0
+  end
+
+  def unauthorized?
+    self.slug == '401'
   end
 
   def index_or_not_found?
@@ -83,12 +93,16 @@ class Page
     Locomotive::Liquid::Drops::Page.new(self)
   end
 
+  def protected?
+    required_role.present?
+  end
+
   protected
 
   def do_not_remove_index_and_404_pages
     return if self.site.nil? || self.site.destroyed?
 
-    if self.index? || self.not_found?
+    if self.index? || self.not_found? || self.unauthorized?
       self.errors[:base] << I18n.t('errors.messages.protected_page')
     end
 

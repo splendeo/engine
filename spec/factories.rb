@@ -18,7 +18,6 @@ FactoryGirl.define do
         name "Locomotive test website #2"
         subdomain "test2"
       end
-
     end
 
     factory "existing site" do
@@ -33,6 +32,8 @@ FactoryGirl.define do
       end
 
     end
+
+
 
     factory "valid site" do
       # after_build { |valid_site| valid_site.stubs(:valid?).returns(true) }
@@ -71,6 +72,18 @@ FactoryGirl.define do
       locale 'it'
     end
 
+    factory "american user" do
+      name "Bill Gates"
+      email "bill@gates.com"
+      locale 'en'
+    end
+
+    factory "spanish user" do
+      name "Santiago Segura"
+      email "santi@go.es"
+      locale 'en'
+    end
+
   end
 
   ## Memberships ##
@@ -93,6 +106,15 @@ FactoryGirl.define do
       account { Factory('brazillian user', :locale => 'en') }
     end
 
+    factory :client do
+      role 'client'
+      account { Factory('american user', :locale => 'en') }
+    end
+
+    factory :employee do
+      role 'employee'
+      account { Factory('spanish user', :locale => 'en') }
+    end
   end
 
   ## Pages ##
