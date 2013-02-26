@@ -43,6 +43,7 @@ gem 'SystemTimer', :platforms => :ruby_18
 gem 'cells', '3.8.0'
 gem 'sanitize'
 gem 'highline'
+gem 'airbrake'
 
 # The rest of the dependencies are for use when in the locomotive dev environment
 
