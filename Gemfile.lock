@@ -208,7 +208,7 @@ GEM
       rdoc (~> 3.4)
       thor (~> 0.14.4)
     raindrops (0.8.0)
-    rake (0.9.2)
+    rake (10.0.3)
     rdoc (3.12)
       json (~> 1.4)
     responders (0.6.4)
@@ -325,7 +325,7 @@ DEPENDENCIES
   pickle
   rack-cache
   rails (= 3.0.10)
-  rake (= 0.9.2)
+  rake (= 10.0.3)
   rmagick (= 2.12.2)
   rspec-cells
   rspec-rails (= 2.6.1)

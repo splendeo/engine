@@ -2,7 +2,7 @@ source :rubygems
 
 # add in all the runtime dependencies
 
-gem 'rake', '0.9.2'
+gem 'rake', '10.0.3'
 
 gem 'rails', '3.0.10'
 
